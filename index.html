@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>DeepScan - Advanced DSA Plagiarism Detection System</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&family=Outfit:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+  <!-- Header / Navigation Bar -->
+  <nav>
+    <div class="logo">Deep<span>Scan</span> <small>DSA v2.0</small></div>
+    <ul>
+      <li><a href="#home" class="active">Home</a></li>
+      <li><a href="#checker">Checker</a></li>
+      <li><a href="#features">Algorithms</a></li>
+      <li><a href="#diagnostics">Diagnostics</a></li>
+      <li><a href="#team">Team</a></li>
+    </ul>
+  </nav>
+
+  <!-- Hero Section -->
+  <section class="hero" id="home">
+    <div class="hero-content">
+      <div class="badge">Advanced DSA Core</div>
+      <h1 class="hero-title">Academic Originality in a New Dimension</h1>
+      <p class="hero-desc">
+        A high-performance plagiarism detection system powered by premium Data Structures and Algorithms. 
+        Benchmarking Knuth-Morris-Pratt, Boyer-Moore, Rabin-Karp, and Suffix Arrays directly in your browser.
+      </p>
+      <div class="hero-btns">
+        <a href="#checker" class="cta-btn">Scan Documents</a>
+        <button id="runTestsBtn" class="cta-btn secondary">Run DSA Unit Tests</button>
+      </div>
+    </div>
+    <div class="hero-3d" id="three-container"></div>
+  </section>
+
+  <!-- Main Checker Panel -->
+  <section class="checker-section" id="checker">
+    <div class="checker-container">
+      
+      <!-- Layout: Grid splitting Corpus Database & Query input -->
+      <div class="checker-grid">
+        
+        <!-- Column 1: Reference Corpus Database (The comparison library) -->
+        <div class="glass-card corpus-card">
+          <div class="card-header">
+            <h3>📂 1. Reference Document Corpus</h3>
+            <span class="badge" id="corpus-count">0 Documents</span>
+          </div>
+          <p class="card-subtitle">These are the source documents against which the query will be checked.</p>
+          
+          <!-- Mock Data Loader -->
+          <div class="corpus-presets">
+            <span>Prepopulate presets:</span>
+            <button class="preset-btn" id="loadPreset1">AI & Robotics Essay</button>
+            <button class="preset-btn" id="loadPreset2">Cosmology & Space wiki</button>
+          </div>
+
+          <div class="file-uploader" id="refFileUploader">
+            <span class="upload-icon">📤</span>
+            <p>Drag & Drop reference TXT files or <span class="browse-link">browse</span></p>
+            <input type="file" id="refFileInput" accept=".txt" multiple style="display:none">
+          </div>
+
+          <!-- Document List View -->
+          <div class="corpus-list-container">
+            <h4>Indexed Source Documents:</h4>
+            <ul class="corpus-list" id="corpusList">
+              <li class="empty-list">No documents indexed. Add files or presets above.</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Column 2: Query Document input -->
+        <div class="glass-card query-card">
+          <div class="card-header">
+            <h3>📝 2. Document to Check (Query)</h3>
+          </div>
+          <p class="card-subtitle">Paste your text or upload a document to scan for plagiarism.</p>
+          
+          <div class="input-selection">
+            <div class="file-uploader mini" id="queryFileUploader">
+              <span>📤 Upload Query (.txt)</span>
+              <input type="file" id="queryFileInput" accept=".txt" style="display:none">
+            </div>
+            <button class="preset-btn" id="loadPlagiarizedPreset" style="flex:1;">Load Mock Plagiarized Query</button>
+          </div>
+
+          <textarea id="inputText" placeholder="Paste your query text here (minimum 10 characters)..."></textarea>
+          <div class="textarea-footer" style="display:flex;justify-content:space-between;color:var(--text-muted);font-size:0.85rem;margin-top:-10px;margin-bottom:15px;padding:0 5px;font-family:var(--font-mono)">
+            <span id="charCount">0 characters</span>
+            <span id="wordCount">0 words</span>
+          </div>
+          
+          <div class="action-row">
+            <button type="button" id="startScanBtn" class="scan-button">
+              <span class="btn-text">⚡ Start Plagiarism Scan</span>
+              <div class="scanner-loader" style="display:none"></div>
+            </button>
+            <button type="button" id="clearCheckerBtn" class="clear-button">Reset</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Live DSA Console Pane -->
+      <div class="glass-card console-card" id="diagnostics">
+        <div class="console-header">
+          <div class="console-title">👨‍💻 DSA Live Execution Console</div>
+          <div class="console-controls">
+            <button id="clearConsoleBtn">Clear</button>
+            <span class="console-status" id="dsaSuiteStatus">Engine Ready</span>
+          </div>
+        </div>
+        <div class="console-body" id="dsaConsole">
+          <div class="console-line system">[System] DeepScan engine initialized.</div>
+          <div class="console-line info">[System] Preprocessing: Stemmer: Porter, Normalization: Lowercase & Punctuation removal.</div>
+          <div class="console-line info">[System] Custom HashTable, Trie, and Suffix Array definitions loaded.</div>
+          <div class="console-line tip">[Tip] Click "Run DSA Unit Tests" or "Start Plagiarism Scan" to witness real-time algorithmic steps.</div>
+        </div>
+      </div>
+
+      <!-- Dynamic Results Dashboard (Hidden by default, slides down) -->
+      <div class="results-dashboard" id="resultsDashboard" style="display:none">
+        
+        <div class="dashboard-title" style="display:flex;align-items:center;flex-wrap:wrap;gap:12px;width:100%;">
+          <h2>📊 Scan Results Dashboard</h2>
+          <span class="badge success" id="statusBadge">Safe</span>
+          <button id="downloadReportBtn" class="preset-btn" style="margin-left:auto;background:var(--primary);border-color:var(--primary);font-weight:600;display:flex;align-items:center;gap:6px;padding:8px 16px;box-shadow: 0 4px 15px rgba(30, 112, 233, 0.2)">📥 Download Report</button>
+        </div>
+
+        <div class="dashboard-grid">
+          <!-- Widget 1: Radial Percentage Gauge -->
+          <div class="glass-card stat-card radial-card">
+            <h4>Overall Similarity Score</h4>
+            <div class="radial-container">
+              <svg class="radial-ring" width="160" height="160">
+                <circle class="ring-bg" cx="80" cy="80" r="70"></circle>
+                <circle class="ring-bar" id="scoreRing" cx="80" cy="80" r="70"></circle>
+              </svg>
+              <div class="radial-value" id="overallSimilarityVal">0%</div>
+            </div>
+            <p class="stat-caption" id="uniquenessDesc">100% Unique</p>
+          </div>
+
+          <!-- Widget 2: Detailed Algorithmic Breakdown -->
+          <div class="glass-card stat-card breakdown-card">
+            <h4>Metric Vectors Comparison</h4>
+            <div class="bar-chart-container">
+              <!-- Bar 1: TF-IDF Cosine -->
+              <div class="chart-row">
+                <div class="chart-label">
+                  <span style="cursor:help;border-bottom:1px dashed var(--text-muted);" title="Cosine Similarity (TF-IDF): Weights significant words to find identical concepts, ignoring filler words like 'the' or 'and'. Highly effective against word swaps.">Cosine Similarity (TF-IDF) ℹ️</span>
+                  <strong id="cosineScoreVal">0%</strong>
+                </div>
+                <div class="chart-bar-bg">
+                  <div class="chart-bar-fill cosine" id="cosineBar" style="width:0%"></div>
+                </div>
+              </div>
+              <!-- Bar 2: Trigram (N-Gram) -->
+              <div class="chart-row">
+                <div class="chart-label">
+                  <span style="cursor:help;border-bottom:1px dashed var(--text-muted);" title="Trigram Similarity (N-gram): Compares sliding windows of 3-word combinations. Excellent at catching structural paraphrasing and sentence rearranging.">Trigram Similarity (N-gram) ℹ️</span>
+                  <strong id="trigramScoreVal">0%</strong>
+                </div>
+                <div class="chart-bar-bg">
+                  <div class="chart-bar-fill trigram" id="trigramBar" style="width:0%"></div>
+                </div>
+              </div>
+              <!-- Bar 3: Jaccard Set -->
+              <div class="chart-row">
+                <div class="chart-label">
+                  <span style="cursor:help;border-bottom:1px dashed var(--text-muted);" title="Jaccard Index: A straightforward set overlap calculation. Shows the fraction of exact vocabulary words in common regardless of syntax.">Jaccard Index (Word Set) ℹ️</span>
+                  <strong id="jaccardScoreVal">0%</strong>
+                </div>
+                <div class="chart-bar-bg">
+                  <div class="chart-bar-fill jaccard" id="jaccardBar" style="width:0%"></div>
+                </div>
+              </div>
+            </div>
+            <p class="stat-caption">Weighted combination yields the Overall Score.</p>
+          </div>
+
+          <!-- Widget 3: Indexer & Vocabulary Stats -->
+          <div class="glass-card stat-card stats-card">
+            <h4>DSA Engine Diagnostics</h4>
+            <ul class="stats-list">
+              <li>
+                <span>Query Tokens Count:</span>
+                <strong id="statQueryTokens">0</strong>
+              </li>
+              <li>
+                <span>Total Words Stemmed:</span>
+                <strong id="statStemmedCount">0</strong>
+              </li>
+              <li>
+                <span>Vocabulary Trie Nodes:</span>
+                <strong id="statTrieNodes">0</strong>
+              </li>
+              <li>
+                <span>HashTable Load Factor:</span>
+                <strong id="statLoadFactor">0.00</strong>
+              </li>
+              <li>
+                <span>HashTable Collisions:</span>
+                <strong id="statCollisions">0</strong>
+              </li>
+              <li>
+                <span>Scan Processing Time:</span>
+                <strong id="statProcessTime">0 ms</strong>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Section: Top Plagiarized Document Sources -->
+        <div class="glass-card sources-card">
+          <h4>Match Rankings (Reference Sources)</h4>
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>Rank</th>
+                  <th>Source Document Name</th>
+                  <th>Cosine TF-IDF</th>
+                  <th>Jaccard</th>
+                  <th>N-gram (3-gram)</th>
+                  <th>Overall Match</th>
+                </tr>
+              </thead>
+              <tbody id="sourcesTableBody">
+                <!-- Dynamically generated rows -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Section: Side-by-Side Highlighted Diff Viewer -->
+        <div class="diff-title">
+          <h3>🔍 Plagiarism Match Highlighter & Substring Benchmarker</h3>
+          <p>The highlighted passages below represent detected plagiarism. Click any highlighted phrase to view source details and algorithm speed comparisons!</p>
+        </div>
+        
+        <div class="diff-viewer-grid">
+          <!-- Left: Query Document with highlight triggers -->
+          <div class="glass-card diff-panel">
+            <div class="panel-header">
+              <span>📝 Query Document Text</span>
+              <small>Matches Highlighted in Red/Orange</small>
+            </div>
+            <div class="diff-text-box" id="queryDiffText">
+              <!-- Dynamically populated marked text -->
+            </div>
+          </div>
+
+          <!-- Right: Matched Reference Source Document & Benchmark Popup -->
+          <div class="glass-card diff-panel">
+            <div class="panel-header">
+              <span>📂 Matching Source Document</span>
+              <span id="matchingDocName" class="badge">No Selection</span>
+            </div>
+            
+            <div class="diff-info-pane" id="benchmarkInfoBox">
+              <div class="info-placeholder">Click any highlighted text on the left to benchmark algorithms & view matching source document passage!</div>
+              
+              <div class="benchmark-details" style="display:none" id="benchmarkDetails">
+                <div class="detail-header">
+                  <h5>Plagiarized Passage Stats</h5>
+                  <span class="match-badge" id="matchBadgePercent">100% Match</span>
+                </div>
+                <blockquote id="matchedTextExcerpt">""</blockquote>
+                
+                <h5 class="bench-title">Algorithm Benchmark Comparison (Time to find this passage):</h5>
+                <div class="bench-grid">
+                  <div class="bench-item">
+                    <span class="algo-name">Suffix Array (Binary Search)</span>
+                    <strong class="algo-time" id="timeSuffixArray">0.0000 ms</strong>
+                    <div class="progress-bar-sm"><div class="fill" id="barSuffixArray" style="width:0%"></div></div>
+                  </div>
+                  <div class="bench-item">
+                    <span class="algo-name">Boyer-Moore (Bad-Character)</span>
+                    <strong class="algo-time" id="timeBoyerMoore">0.0000 ms</strong>
+                    <div class="progress-bar-sm"><div class="fill" id="barBoyerMoore" style="width:0%"></div></div>
+                  </div>
+                  <div class="bench-item">
+                    <span class="algo-name">Knuth-Morris-Pratt (KMP)</span>
+                    <strong class="algo-time" id="timeKMP">0.0000 ms</strong>
+                    <div class="progress-bar-sm"><div class="fill" id="barKMP" style="width:0%"></div></div>
+                  </div>
+                  <div class="bench-item">
+                    <span class="algo-name">Rabin-Karp (Rolling Hash)</span>
+                    <strong class="algo-time" id="timeRabinKarp">0.0000 ms</strong>
+                    <div class="progress-bar-sm"><div class="fill" id="barRabinKarp" style="width:0%"></div></div>
+                  </div>
+                </div>
+                <p class="bench-footer">Suffix Array binary search O(M log N) and Boyer-Moore average O(N/M) generally lead high-performance substring searches!</p>
+              </div>
+            </div>
+
+            <div class="diff-text-box source" id="sourceDiffText">
+              <div class="empty-source-prompt">Original source content will align and highlight here.</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- History Panel -->
+      <div class="glass-card history-card">
+        <div class="card-header">
+          <h3>📜 Plagiarism Scan History</h3>
+          <button class="preset-btn clear" id="clearHistoryBtn">Clear History</button>
+        </div>
+        <div class="history-list-container">
+          <ul class="history-list" id="historyList">
+            <li class="empty-list">No history recorded in this session.</li>
+          </ul>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Algorithm Info Section -->
+  <section class="features-section" id="features">
+    <h2>Advanced DSA Concepts Employed</h2>
+    <p class="features-lead">This project utilizes standard and advanced computer science data structures and string-matching algorithms to deliver enterprise-grade performance directly in the client application.</p>
+    
+    <div class="features-grid">
+      <div class="feature-card glass">
+        <h3>🗄️ Custom HashTable</h3>
+        <p>Uses a polynomial rolling hash and chaining (linked nodes) for collisions. Doubling resizing when load factor exceeds 0.75 ensures average O(1) keyword indexing.</p>
+      </div>
+      <div class="feature-card glass">
+        <h3>🌳 Trie (Prefix Tree)</h3>
+        <p>Indexes the joint vocabulary of the corpus. Offers O(W) word lookups, making vocabulary searches independent of the size of the corpus document collection.</p>
+      </div>
+      <div class="feature-card glass">
+        <h3>🏷️ Suffix Array</h3>
+        <p>Lexicographically sorts all document suffixes. Uses Binary Search to retrieve occurrences of exact phrases in logarithmic O(M log N) time.</p>
+      </div>
+      <div class="feature-card glass">
+        <h3>🐎 Boyer-Moore</h3>
+        <p>A pattern-matching algorithm utilizing the bad-character shift rule to bypass large swaths of text. Achieves sub-linear O(N/M) runtime averages.</p>
+      </div>
+      <div class="feature-card glass">
+        <h3>🛡️ Knuth-Morris-Pratt</h3>
+        <p>Applies a precomputed Longest Prefix Suffix (LPS) table to bypass backtracking in string matches. Assures strict linear O(N + M) scanning.</p>
+      </div>
+      <div class="feature-card glass">
+        <h3>🧬 Rabin-Karp</h3>
+        <p>Executes substring scans via sliding polynomial rolling hashes in O(N + M). Validates candidate collisions character-by-character to eliminate false matches.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Team / Delta Coders Section -->
+  <section class="team-section" id="team">
+    <h2>Delta Coders</h2>
+    <div class="team-grid">
+      <div class="team-card glass">
+        <img
+          src="https://avatars.githubusercontent.com/u/149429337?s=400&u=720618db0c53f2a3cbe002d6ae16f730efa83921&v=4"
+          alt="Nikhil Bloria">
+        <h4>Nikhil Bloria</h4>
+        <p>Project Lead</p>
+      </div>
+      <div class="team-card glass">
+        <div class="author-placeholder">🎓</div>
+        <h4>Sarthak Chaubey</h4>
+        <p>B.Tech CSE (Cybersecurity)</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Contact & Footer -->
+  <section class="contact-section" id="contact">
+    <h2>College Presentation Info</h2>
+    <p>This project is optimized as a <b>Final Year & Resume Portfolio Showcase</b> demonstrating robust modular design and premium theoretical DSA concepts in plain Javascript.</p>
+  </section>
+
+  <footer>
+    &copy; 2026 Delta Coders. All rights reserved.
+    <div style="font-size:1.1rem;color:#39ff14;margin-top:8px;">Developed by <b>Delta Coders</b></div>
+  </footer>
+
+  <!-- CDNs and Application Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/three@0.153.0/build/three.min.js"></script>
+  
+  <!-- Core Modular Scripts -->
+  <script src="js/utils/nlp.js"></script>
+  <script src="js/core/hash_table.js"></script>
+  <script src="js/dsa/trie.js"></script>
+  <script src="js/dsa/kmp.js"></script>
+  <script src="js/dsa/boyer_moore.js"></script>
+  <script src="js/dsa/rabin_karp.js"></script>
+  <script src="js/dsa/suffix_array.js"></script>
+  <script src="js/core/similarity.js"></script>
+  <script src="js/core/indexer.js"></script>
+  <script src="js/app.js"></script>
+</body>
+
+</html>
